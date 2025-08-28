@@ -1,9 +1,44 @@
-version: "2.4"
-# Advantech Jetson™ LLM Ollama AI development Docker Compose file 
-# Created and maintained by Samir Singh <samir.singh@advantech.com>
-# This Docker Compose file configures the Jetson™ LLM Ollama AI Development Container
-# with all necessary hardware acceleration settings.
+# ==========================================================================
+# LLM-Ollama-on-NVIDIA-Jetson Docker Compose File
+# ==========================================================================
+# Version:      1.2.0-Ubuntu20.04-ARM
+# Author:       Samir Singh <samir.singh@advantech.com>
+# Created:      March 25, 2025
+# Last Updated: August 28, 2025
+#
+# Description:
+#
+#   This Docker Compose file deploys the Advantech Jetson™ LLM-Ollama Edge AI
+#   development environment with NVIDIA GPU acceleration enabled for Jetson
+#   platforms.
+#
+#   The stack includes:
+#     - LLM Ollama Service: Provides Ollama-based large language model
+#       inference with CUDA, Tensor, and Jetson multimedia API acceleration for
+#       efficient AI model execution at the edge. Includes Advantech’s
+#       benchmarking utility (`wise-bench.sh`) for profiling performance.
+#     - OpenWebUI Service: Delivers a browser-based interface to interact with
+#       the Ollama backend, visualize outputs, and test prompt workflows in
+#       real time.
+#
+#   The configuration ensures optimized hardware access to NVIDIA GPU, CUDA,
+#   Tensor cores, and multimedia accelerators on Jetson devices, enabling high
+#   performance AI development and inference workloads.
+#
+# Terms and Conditions:
+#   1. This software is provided by Advantech Corporation "as is" and any
+#      express or implied warranties, including, but not limited to, the implied
+#      warranties of merchantability and fitness for a particular purpose are
+#      disclaimed.
+#   2. In no event shall Advantech Corporation be liable for any direct, indirect,
+#      incidental, special, exemplary, or consequential damages arising in any way
+#      out of the use of this software.
+#   3. Redistribution and use in source and binary forms, with or without
+#      modification, are permitted provided that the above copyright notice and
+#      this permission notice appear in all copies.
+#
 # Copyright (c) 2025 Advantech Corporation. All rights reserved.
+# ==========================================================================
 services:
   llm-ollama-service:
       image: harbor.edgesync.cloud/nagarro-container-images/llm-ollama-on-nvidia-jetson:v1
