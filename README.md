@@ -23,7 +23,7 @@ LLM Ollama on NVIDIA Jetson™ provides Ollama & Meta Llama 3.2 1B Model for a s
 
 
 ## Architecture
-![ollama-llama.png](..%2Fdata%2Farchitectures%2Follama-llama.png)
+![ollama-llama.png](data%2Farchitectures%2Follama-llama.png)
 
 ## Repository Structure
 ```
@@ -39,7 +39,9 @@ LLM-Ollama-on-NVIDIA-Jetson/
 ├── llm-models-performance-notes-readme.md    # Performance notes of LLM Models
 ├── efficient-prompting-for-compact-models.md # Craft better prompts for small and quantized language models
 ├── .gitignore                                # Git ignore specific files
-└── customization-readme.md                   # Customization, optimization & configuration guide
+├── customization-readme.md                   # Customization, optimization & configuration guide
+└── data                                      # Contains subfolders for assets like images, gifs etc.
+
 ```
 ## Container Description
 
@@ -181,7 +183,7 @@ Allow some time for the OpenWebUI and Jetson™ LLM Ollama container to settle a
 /workspace/wise-bench.sh
 ```
 
-![ollama-wise-bench.png](..%2Fdata%2Fimages%2Follama-wise-bench.png)
+![ollama-wise-bench.png](data%2Fimages%2Follama-wise-bench.png)
 
 Wise-bench logs are saved in `wise-bench.log` file under `/workspace`
 
@@ -200,11 +202,11 @@ http://localhost_or_Jetson_IP:3000
 ### Select Model
 In case Ollama has multiple models available, choose from the list of models on the top-left of OpenWebUI after signing up/logging in successfully. As shown below. Select Meta Llama 3.2 1B:
 
-![Select Model](..%2Fdata%2Fimages%2Fselect-model.png)
+![Select Model](data%2Fimages%2Fselect-model.png)
 
 ### Quick Demonstration:
 
-![Demo](..%2Fdata%2Fgifs%2Fllama.gif)
+![Demo](data%2Fgifs%2Fllama.gif)
 
 ## Prompt Guidelines
 
@@ -357,7 +359,7 @@ Response:
 ```
 Sample Screenshot:
 
-![ollama-curl-meta.png](..%2Fdata%2Fimages%2Follama-curl-meta.png)
+![ollama-curl-meta.png](data%2Fimages%2Follama-curl-meta.png)
 
 For further API details, please refer to the official documentation of Ollama as mentioned on top.
 

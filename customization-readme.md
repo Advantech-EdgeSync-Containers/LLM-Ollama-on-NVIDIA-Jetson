@@ -85,7 +85,7 @@ OPENAI_API_OLLAMA_BASE=http://localhost:11434/v1
   ```
     sudo nano /etc/systemd/system/ollama.service
   ```
-![ollama-system-ctl.png](..%2Fdata%2Fimages%2Follama-system-ctl.png)
+![ollama-system-ctl.png](data%2Fimages%2Follama-system-ctl.png)
 
 - Replace the Ollama Serve command with
   ```
@@ -102,7 +102,7 @@ OPENAI_API_OLLAMA_BASE=http://localhost:11434/v1
   ```
   It should display ‘Ollama is running.’ 
 
-![ollama-status](..%2Fdata%2Fimages%2Follama-status.png)
+![ollama-status](data%2Fimages%2Follama-status.png)
 
 ## Ollama Model Memory Usage Optimization
 
@@ -120,7 +120,7 @@ Combining KV Cache Quantization and Flash Attention often results in better memo
 - Start the Ollama service. 
 - Check memory utilization by ollama logs; kv-cache size would be reduced. 
 - Before Optimization
-![kv-cache-before](..%2Fdata%2Fimages%2Fkvcache-before.png)
+![kv-cache-before](data%2Fimages%2Fkvcache-before.png)
 
 - After Optimization
-![kv-cache-before](..%2Fdata%2Fimages%2Fkvcache-after.png)
+![kv-cache-before](data%2Fimages%2Fkvcache-after.png)

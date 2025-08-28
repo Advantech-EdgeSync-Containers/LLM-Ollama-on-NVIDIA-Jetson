@@ -172,7 +172,7 @@ if name == "__main__":
 This online tool can be used to convert & quantize Hugging Face models with ease & pushes the final model into the user's own Hugging Face account. Though this tool at times faces lots of traffic and may not be available all the time.
 [GGUF Repo](https://huggingface.co/spaces/ggml-org/gguf-my-repo)
 
-![ggm-repo](..%2Fdata%2Fimages%2Fggml-repo.png)
+![ggm-repo](data%2Fimages%2Fggml-repo.png)
 
 ## Option 3: Manual Steps to Handle Model Download, GGUF Conversion, and Quantization.
 
@@ -181,7 +181,7 @@ This online tool can be used to convert & quantize Hugging Face models with ease
 ### Authentication token
 User Access Tokens are the preferred way to authenticate an application or notebook to Hugging Face services. Create a Hugging Face token in your [account settings](https://huggingface.co/settings/tokens) and export it:
 
-![hugging-face-token](..%2Fdata%2Fimages%2Fhugging-face-token.png)
+![hugging-face-token](data%2Fimages%2Fhugging-face-token.png)
 
 
 ```
@@ -209,7 +209,7 @@ python3 llama.cpp/convert_hf_to_gguf.py models/Llama-3.2-1B-Instruct   --outfile
 ```
 
 See the below screenshot for reference (apply on your model):
-![gguf-convert](..%2Fdata%2Fimages%2Fgguf-convert.png)
+![gguf-convert](data%2Fimages%2Fgguf-convert.png)
 
 
 ### Quantize the Model
@@ -225,14 +225,14 @@ Example:
 ```
 ./llama.cpp/build/bin/llama-quantize   models/Llama-3.2-1B-Instruct.gguf   models/Llama-3.2-1B-Instruct.gguf Q4_K_M
 ```
-![Quantization](..%2Fdata%2Fimages%2Fquantization.png)
+![Quantization](data%2Fimages%2Fquantization.png)
 
 ### Check the llama-quantize help document.
 
 ```
 ./llama.cpp/build/bin/llama-quantize --help
 ```
-![Quantize Help](..%2Fdata%2Fimages%2Fquantize-help.png)
+![Quantize Help](data%2Fimages%2Fquantize-help.png)
 
 ### Supported Quantization Types
 Key Points:

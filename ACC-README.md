@@ -26,7 +26,7 @@ This container image, LLM Ollama on NVIDIA Jetson™, bundles a ready-to-use Oll
 
 
 ## Container Demo
-![Demo](..%2Fdata%2Fgifs%2Fllama.gif)
+![Demo](data%2Fgifs%2Fllama.gif)
 
 ## Use Case 
 
