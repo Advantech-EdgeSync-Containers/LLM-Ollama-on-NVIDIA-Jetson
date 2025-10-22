@@ -34,14 +34,14 @@
 #      incidental, special, exemplary, or consequential damages arising in any way
 #      out of the use of this software.
 #   3. Redistribution and use in source and binary forms, with or without
-#      modification, are permitted provided that the above copyright notice and
+#      modification, are permitted provided that the above copyright notice and1.5.0-Ubuntu20.04-ARM
 #      this permission notice appear in all copies.
 #
 # Copyright (c) 2025 Advantech Corporation. All rights reserved.
 # ==========================================================================
 services:
   llm-ollama-service:
-      image: harbor.edgesync.cloud/nagarro-container-images/llm-ollama-on-nvidia-jetson:v1
+      image: edgesync.azurecr.io/advantech/advantech-yolo-vision-applications:1.5.0-Ubuntu20.04-ARM
       container_name: LLM-Ollama-on-NVIDIA-Jetson
       env_file: .env
       privileged: true
