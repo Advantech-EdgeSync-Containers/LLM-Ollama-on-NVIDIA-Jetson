@@ -41,7 +41,7 @@
 # ==========================================================================
 services:
   llm-ollama-service:
-      image: edgesync.azurecr.io/advantech/advantech-yolo-vision-applications:1.5.0-Ubuntu20.04-ARM
+      image: edgesync.azurecr.io/advantech/llm-ollama-on-nvidia-jetson:1.5.0-Ubuntu20.04-ARM
       container_name: LLM-Ollama-on-NVIDIA-Jetson
       env_file: .env
       privileged: true
