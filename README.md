@@ -8,6 +8,16 @@
 ## Overview
 LLM Ollama on NVIDIA Jetson™ provides Ollama & Meta Llama 3.2 1B Model for a streamlined, hardware-accelerated environment for developing and deploying conversational AI applications on NVIDIA Jetson™ devices. This container integrates OpenWebUI for a user-friendly chat interface and leverages the Meta Llama language model for efficient on-device inference. It includes hardware-accelerated AI software components, delivering a complete development environment. Optimized for edge deployments, it ensures high performance, low latency, and reliable real-time AI interaction.
 
+## Host System Requirements
+
+| Component | Version/Requirement |
+|-----------|---------|
+| **JetPack** | 5.x |
+| **CUDA** | 11.4.315 |
+| **cuDNN** | 8.6.0.166 |
+| **TensorRT** | 8.5.2.2 |
+| **OpenCV** | 4.5.4 |
+
 ## Key Features
 
 | Feature | Description |
@@ -146,6 +156,13 @@ The following software components/packages are provided further as a part of thi
 | Ollama | 0.5.7 | LLM inference engine |
 | OpenWebUI | 0.6.5 | Provided via separate OpenWebUI container for UI  |
 | Meta Llama 3.2 1B | N/A | Pulled inside Ollama container and persisted via docker volume  |
+
+## Before You Start
+- Ensure the following components are installed on your host system:
+  - **Docker** (v28.1.1 or compatible)
+  - **Docker Compose** (v2.39.1 or compatible)
+  - **NVIDIA Container Toolkit** (v1.11.0 or compatible)
+  - **NVIDIA Runtime** configured in Docker
 
 ## Quick Start
 
