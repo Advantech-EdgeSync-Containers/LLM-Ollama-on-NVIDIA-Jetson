@@ -18,6 +18,9 @@ LLM Ollama on NVIDIA Jetson™ provides Ollama & Meta Llama 3.2 1B Model for a s
 | **TensorRT** | 8.5.2.2 |
 | **OpenCV** | 4.5.4 |
 
+* CUDA , CuDNN , TensorRT , OpenCV versions Depends on JetPack version 5.x
+* Please refer to the [NVIDIA JetPack Documentation](https://developer.nvidia.com/embedded/jetpack) for more details on compatible versions.
+
 ## Key Features
 
 | Feature | Description |
