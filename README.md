@@ -279,7 +279,7 @@ Here are quick commands/instructions to troubleshoot issues with the Jetson™ L
   export OLLAMA_DEBUG=true
   ./start_services.sh
   ```
-- In some cases, it has been found that if Ollama is also present at the host, it may give permission issues during pulling models within the container. Uninstalling host Ollama may solve the issue quickly. Follow this link for uninstallation steps - [Uninstall Ollama.](https://github.com/ollama/ollama/blob/main/docs/linux.md#uninstall)
+- In some cases, it has been found that if Ollama is also present at the host, it may give permission issues during pulling models within the container. Uninstalling host Ollama may solve the issue quickly. Follow this link for uninstallation steps - [Uninstall Ollama.](https://docs.ollama.com/linux#uninstall)
 
 ## Ollama Python Inference Sample
 Here's a Python example to draw inference using the Ollama API. This script sends a prompt to an Ollama model (e.g., Meta Llama3.2 1B, DeepSeek R1 1.5B, etc.) and retrieves the response.
