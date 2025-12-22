@@ -3,9 +3,23 @@
 **Version:** 1.0
 **Release Date:** November 2025
 **Copyright:** © 2025 Advantech Corporation. All rights reserved.
+>  Check our [Troubleshooting Wiki](https://github.com/Advantech-EdgeSync-Containers/GPU-Passthrough-on-NVIDIA-Jetson/wiki/Advantech-Containers'-Troubleshooting-Guide) for common issues and solutions.
 
 ## Overview
 LLM Ollama on NVIDIA Jetson™ provides Ollama & Meta Llama 3.2 1B Model for a streamlined, hardware-accelerated environment for developing and deploying conversational AI applications on NVIDIA Jetson™ devices. This container integrates OpenWebUI for a user-friendly chat interface and leverages the Meta Llama language model for efficient on-device inference. It includes hardware-accelerated AI software components, delivering a complete development environment. Optimized for edge deployments, it ensures high performance, low latency, and reliable real-time AI interaction.
+
+## Host System Requirements
+
+| Component | Version/Requirement |
+|-----------|---------|
+| **JetPack** | 6.x |
+| **CUDA** | 12.6.68 |
+| **cuDNN** | 9.3.0.75 |
+| **TensorRT** | 10.3.0.30 |
+| **OpenCV** | 4.8.0 |
+
+* CUDA , CuDNN , TensorRT , OpenCV versions Depends on JetPack version 6.x
+* Please refer to the [NVIDIA JetPack Documentation](https://developer.nvidia.com/embedded/jetpack) for more details on compatible versions.
 
 ## Key Features
 
@@ -126,14 +140,18 @@ This image uses Meta Llama 3.2 1B for inferencing; here are the details about th
 
 The following software components are available in the base image:
 
-| Component | Version   | Description                        |
-|-----------|-----------|------------------------------------|
-| CUDA®     | 12.6.68   | GPU computing platform             |
-| cuDNN     | 9.3.0.75  | Deep Neural Network library        |
-| TensorRT™ | 10.3.0.30 | Inference optimizer and runtime    |
-| VPI       | 3.2.4     | Vision Programming Interface       |
-| Vulkan    | 1.3.204   | Graphics and compute API           |
-| OpenCV    | 4.8.0     | Computer vision library with CUDA® |
+| Component    | Version        | Description                        |
+|--------------|----------------|------------------------------------|
+| CUDA®        | 12.6.68        | GPU computing platform             |
+| cuDNN        | 9.3.0.75       | Deep Neural Network library        |
+| TensorRT™    | 10.3.0.30      | Inference optimizer and runtime    |
+| PyTorch      | 2.0.0+nv23.02  | Deep learning framework            |
+| TensorFlow   | 2.12.0         | Machine learning framework         |
+| ONNX Runtime | 1.16.3         | Cross-platform inference engine    |
+| VPI          | 3.2.4          | Vision Programming Interface       |
+| Vulkan       | 1.3.204        | Graphics and compute API           |
+| OpenCV       | 4.8.0          | Computer vision library with CUDA® |
+| GStreamer    | 1.16.2         | Multimedia framework               |
 
 
 The following software components/packages are provided further as a part of this image:
@@ -143,6 +161,13 @@ The following software components/packages are provided further as a part of thi
 | Ollama | 0.5.7 | LLM inference engine |
 | OpenWebUI | 0.6.5 | Provided via separate OpenWebUI container for UI  |
 | Meta Llama 3.2 1B | N/A | Pulled inside Ollama container and persisted via docker volume  |
+
+## Before You Start
+- Ensure the following components are installed on your host system:
+  - **Docker** (v28.1.1 or compatible)
+  - **Docker Compose** (v2.39.1 or compatible)
+  - **NVIDIA Container Toolkit** (v1.11.0 or compatible)
+  - **NVIDIA Runtime** configured in Docker
 
 ## Quick Start
 
@@ -178,8 +203,12 @@ Allow some time for the OpenWebUI and Jetson™ LLM Ollama container to settle a
 ### AI Accelerator and Software Stack Verification (Optional)
 ```
 # Verify AI Accelerator and Software Stack Inside Docker Container
-chmod +x /workspace/wise-bench.sh
-./workspace/wise-bench.sh
+# Under /workspace, run this command
+# Provide executable rights
+chmod +x wise-bench.sh
+
+# To run Wise-bench
+./wise-bench.sh
 ```
 
 ![ollama-wise-bench.png](data%2Fimages%2Follama-wise-bench.png)
@@ -196,7 +225,7 @@ Allow some time for containers to become healthy.
 ### UI Access
 Access OpenWebUI via any browser using the URL given below. Create an account and perform a login:
 ```
-http://localhost_or_Jetson_IP:3000
+http://localhost:3000
 ```
 ### Select Model
 In case Ollama has multiple models available, choose from the list of models on the top-left of OpenWebUI after signing up/logging in successfully. As shown below. Select Meta Llama 3.2 1B:
@@ -252,7 +281,7 @@ Here are quick commands/instructions to troubleshoot issues with the Jetson™ L
   export OLLAMA_DEBUG=true
   ./start_services.sh
   ```
-- In some cases, it has been found that if Ollama is also present at the host, it may give permission issues during pulling models within the container. Uninstalling host Ollama may solve the issue quickly. Follow this link for uninstallation steps - [Uninstall Ollama.](https://github.com/ollama/ollama/blob/main/docs/linux.md#uninstall)
+- In some cases, it has been found that if Ollama is also present at the host, it may give permission issues during pulling models within the container. Uninstalling host Ollama may solve the issue quickly. Follow this link for uninstallation steps - [Uninstall Ollama.](https://docs.ollama.com/linux#uninstall)
 
 ## Ollama Python Inference Sample
 Here's a Python example to draw inference using the Ollama API. This script sends a prompt to an Ollama model (e.g., Meta Llama3.2 1B, DeepSeek R1 1.5B, etc.) and retrieves the response.
