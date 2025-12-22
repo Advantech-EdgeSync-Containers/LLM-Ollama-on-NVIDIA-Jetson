@@ -223,7 +223,7 @@ Allow some time for containers to become healthy.
 ### UI Access
 Access OpenWebUI via any browser using the URL given below. Create an account and perform a login:
 ```
-http://localhost_or_Jetson_IP:3000
+http://localhost:3000
 ```
 ### Select Model
 In case Ollama has multiple models available, choose from the list of models on the top-left of OpenWebUI after signing up/logging in successfully. As shown below. Select Meta Llama 3.2 1B:
@@ -366,7 +366,7 @@ Ollama APIs are accessible on the default endpoint (unless modified). If needed,
 
 Inference Request:
 ```
-curl http://localhost_or_Jetson_IP:11434/api/generate -d '{
+curl http://localhost:11434/api/generate -d '{
   "model": "llama3.2:1b",
   "prompt": "Why is the sky blue?",
   "stream": false
