@@ -327,7 +327,7 @@ def generate_with_ollama_stream(prompt, model='llama3.2:1b'):
                     print(f"[Error decoding JSON chunk]: {e}")
 
 # Example usage
-if name == "__main__":
+if __name__ == "__main__":
     prompt = "Explain quantum computing in simple terms."
     generate_with_ollama_stream(prompt, model="llama3.2:1b")
 
