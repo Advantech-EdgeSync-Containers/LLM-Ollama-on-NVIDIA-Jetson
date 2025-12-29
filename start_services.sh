@@ -7,7 +7,7 @@ if [ -z "$MODEL_NAME" ]; then
 fi
 
 echo "Starting Ollama server in background..."
-nohup ollama serve > ollama.log 2>&1 &
+nohup env OLLAMA_HOST=0.0.0.0:11434 ollama serve > ollama.log 2>&1 &
 
 # Save PID to a file
 echo $! > ollama.pid
