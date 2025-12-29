@@ -33,7 +33,7 @@ NC='\033[0m' # No Color
 
 # Display banner
 echo -e "${BLUE}${BOLD}+------------------------------------------------------+${NC}"
-echo -e "${BLUE}${BOLD}|    ${PURPLE}Advantech COE AI/DL Toolkit Diagnostics${BLUE}         |${NC}"
+echo -e "${BLUE}${BOLD}|    ${PURPLE}Advantech COE Ollama Diagnostics Tool${BLUE}           |${NC}"
 echo -e "${BLUE}${BOLD}+------------------------------------------------------+${NC}"
 echo
 
@@ -222,3 +222,44 @@ MATPLOTLIB_VERSION=$(python3 -c "import matplotlib; print(matplotlib.__version__
 print_table_row "Matplotlib" "$MATPLOTLIB_VERSION"
 
 print_table_footer
+
+# OLLAMA TEST
+print_header "OLLAMA TEST"
+
+echo
+echo -e "${PURPLE}"
+echo "       ██████╗ ██╗     ██╗      █████╗ ███╗   ███╗ █████╗"
+echo "      ██╔═══██╗██║     ██║     ██╔══██╗████╗ ████║██╔══██╗"
+echo "      ██║   ██║██║     ██║     ███████║██╔████╔██║███████║"
+echo "      ██║   ██║██║     ██║     ██╔══██║██║╚██╔╝██║██╔══██║"
+echo "      ╚██████╔╝███████╗███████╗██║  ██║██║ ╚═╝ ██║██║  ██║"
+echo "       ╚═════╝ ╚══════╝╚══════╝╚═╝  ╚═╝╚═╝     ╚═╝╚═╝  ╚═╝"
+echo -e "${NC}"
+
+echo "▶ Testing Ollama capabilities..."
+print_table_header "OLLAMA DETAILS"
+
+if command -v ollama &> /dev/null; then
+    OLLAMA_VERSION=$(ollama --version 2>/dev/null | head -1 || echo "Unknown")
+    OLLAMA_PATH=$(which ollama)
+    print_table_row "Status" "✓ Installed"
+    print_table_row "Version" "$OLLAMA_VERSION"
+    print_table_row "Path" "$OLLAMA_PATH"
+
+    # Check if ollama service is running
+    if pgrep -x "ollama" > /dev/null; then
+        print_table_row "Service Status" "✓ Running"
+
+        # List installed models
+        MODELS=$(ollama list 2>/dev/null | tail -n +2 | wc -l)
+        print_table_row "Models Installed" "$MODELS"
+    else
+        print_table_row "Service Status" "⚠ Not Running"
+        print_table_row "Note" "Start with 'ollama serve'"
+    fi
+else
+    print_table_row "Status" "✗ Not Installed"
+fi
+print_table_footer
+
+print_success "All diagnostics completed"
