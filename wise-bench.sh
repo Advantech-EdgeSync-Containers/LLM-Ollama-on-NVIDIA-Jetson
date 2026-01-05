@@ -206,14 +206,51 @@ print_table_row "Uptime" "$UPTIME"
 print_table_row "Date" "$(date "+%a %b %d %H:%M:%S %Y")"
 print_table_footer
 
+print_header "CUDA INFORMATION"
+echo -e "${YELLOW}"
+echo "       ██████╗██╗   ██╗██████╗  █████╗ "
+echo "      ██╔════╝██║   ██║██╔══██╗██╔══██╗"
+echo "      ██║     ██║   ██║██║  ██║███████║"
+echo "      ██║     ██║   ██║██║  ██║██╔══██║"
+echo "      ╚██████╗╚██████╔╝██████╔╝██║  ██║"
+echo "       ╚═════╝ ╚═════╝ ╚═════╝ ╚═╝  ╚═╝"
+echo -e "${NC}"
+echo -ne "▶ Detecting CUDA installation... "
+for i in {1..10}; do
+    echo -ne "▮"
+    sleep 0.05
+done
+echo
+print_table_header "CUDA DETAILS"
+if [ -f "/usr/local/cuda/bin/nvcc" ]; then
+    CUDA_VERSION=$(/usr/local/cuda/bin/nvcc --version | grep "release" | awk '{print $5}' | cut -d',' -f1)
+    CUDA_PATH="/usr/local/cuda"
+    CUDA_DRIVER_VERSION=$(nvidia-smi --query-gpu=driver_version --format=csv,noheader 2>/dev/null || echo "Unknown")
+    print_table_row "CUDA Version" "$CUDA_VERSION"
+    print_table_row "CUDA Path" "$CUDA_PATH"
+    print_table_row "NVCC Path" "/usr/local/cuda/bin/nvcc"
+    print_table_row "Status" "✓ Available"
+else
+    NVCC_PATH=$(find /usr -name nvcc 2>/dev/null | head -1)
+    if [ -n "$NVCC_PATH" ]; then
+        CUDA_VERSION=$("$NVCC_PATH" --version | grep "release" | awk '{print $5}' | cut -d',' -f1)
+        CUDA_PATH=$(dirname $(dirname "$NVCC_PATH"))
+        print_table_row "CUDA Version" "$CUDA_VERSION"
+        print_table_row "CUDA Path" "$CUDA_PATH"
+        print_table_row "NVCC Path" "$NVCC_PATH"
+        print_table_row "Status" "✓ Available"
+    fi
+fi
+print_table_footer
+
 print_header "DIAGNOSTICS SUMMARY"
 print_table_header "HARDWARE ACCELERATION STATUS"
 
 if command -v nvidia-smi &> /dev/null && nvidia-smi > /dev/null 2>&1; then
-    print_table_row "NVIDIA GPU" "✓ Active"
+    print_table_row "CUDA Toolkit" "✓ Active"
     CUDA_STATUS=1
 else
-    print_table_row "NVIDIA GPU" "⚠ Not detected"
+    print_table_row "CUDA Toolkit" "⚠ Not detected"
     CUDA_STATUS=0
 fi
 
