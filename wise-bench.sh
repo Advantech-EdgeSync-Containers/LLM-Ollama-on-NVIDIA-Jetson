@@ -243,6 +243,127 @@ else
 fi
 print_table_footer
 
+print_header "PYTORCH CUDA TEST"
+echo -ne "▶ Running PyTorch CUDA test... "
+SPINNER_CHARS="⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏"
+for i in {1..20}; do
+    echo -ne "\b${SPINNER_CHARS:i%10:1}"
+    sleep 0.1
+done
+echo -ne "\b✓\n"
+print_table_header "PYTORCH DETAILS"
+PYTORCH_INFO=$(python3 -c "
+import sys
+try:
+    import torch
+    print(torch.__version__)
+    print(torch.cuda.is_available())
+    print(torch.cuda.device_count())
+    print(torch.cuda.get_device_name(0) if torch.cuda.is_available() else 'N/A')
+except ImportError:
+    print('Not installed')
+    print('False')
+    print('0')
+    print('N/A')
+except Exception as e:
+    print('Error: ' + str(e))
+    print('False')
+    print('0')
+    print('N/A')
+" 2>/dev/null || echo "Error False 0 N/A")
+PYTORCH_VERSION=$(echo "$PYTORCH_INFO" | head -1)
+PYTORCH_CUDA=$(echo "$PYTORCH_INFO" | sed -n '2p')
+PYTORCH_DEVICES=$(echo "$PYTORCH_INFO" | sed -n '3p')
+PYTORCH_DEVICE_NAME=$(echo "$PYTORCH_INFO" | sed -n '4p')
+print_table_row "PyTorch Version" "$PYTORCH_VERSION"
+print_table_row "CUDA Available" "$([[ "$PYTORCH_CUDA" == "True" ]] && echo "Yes" || echo "No")"
+print_table_row "CUDA Devices" "$PYTORCH_DEVICES"
+print_table_row "Device Name" "$PYTORCH_DEVICE_NAME"
+if [[ "$PYTORCH_CUDA" == "True" ]]; then
+    print_table_row "Status" "✓ Accelerated"
+else
+    print_table_row "Status" "⚠ CPU Only"
+fi
+print_table_footer
+print_header "TENSORFLOW GPU TEST"
+echo -ne "▶ Checking TensorFlow configuration... "
+for i in {1..5}; do
+    for c in ⣾ ⣽ ⣻ ⢿ ⡿ ⣟ ⣯ ⣷; do
+        echo -ne "\b$c"
+        sleep 0.1
+    done
+done
+echo -ne "\b✓\n"
+print_table_header "TENSORFLOW DETAILS"
+TF_INFO=$(python3 -c "
+import sys
+try:
+    import tensorflow as tf
+    print(tf.__version__)
+    devices = tf.config.list_physical_devices('GPU')
+    print(len(devices))
+    print(','.join([d.name for d in devices]) if devices else 'None')
+except ImportError:
+    print('Not installed')
+    print('0')
+    print('None')
+except Exception as e:
+    print('Error: ' + str(e))
+    print('0')
+    print('None')
+" 2>/dev/null || echo "Error 0 None")
+TF_VERSION=$(echo "$TF_INFO" | head -1)
+TF_GPU_COUNT=$(echo "$TF_INFO" | sed -n '2p')
+TF_GPU_NAMES=$(echo "$TF_INFO" | sed -n '3p')
+print_table_row "TensorFlow Version" "$TF_VERSION"
+print_table_row "GPU Count" "$TF_GPU_COUNT"
+print_table_row "GPU Devices" "$TF_GPU_NAMES"
+if [[ "$TF_GPU_COUNT" -gt 0 ]]; then
+    print_table_row "Status" "✓ GPU Acceleration Enabled"
+else
+    print_table_row "Status" "⚠ Running on CPU Only"
+fi
+print_table_footer
+print_header "ONNX RUNTIME TEST"
+echo -ne "▶ Checking ONNX providers "
+BAR_SIZE=20
+for ((i=0; i<$BAR_SIZE; i++)); do
+    echo -ne "█"
+    sleep 0.05
+done
+echo -e " ✓"
+print_table_header "ONNX RUNTIME DETAILS"
+ONNX_INFO=$(python3 -c "
+import sys
+try:
+    import onnxruntime as ort
+    print(ort.__version__)
+    providers = ort.get_available_providers()
+    print(','.join(providers))
+except ImportError:
+    print('Not installed')
+    print('None')
+except Exception as e:
+    print('Error: ' + str(e))
+    print('None')
+" 2>/dev/null || echo "Error None")
+ONNX_VERSION=$(echo "$ONNX_INFO" | head -1)
+ONNX_PROVIDERS=$(echo "$ONNX_INFO" | sed -n '2p')
+ONNX_HAS_GPU=$(echo "$ONNX_PROVIDERS" | grep -i "GPU\|CUDA" || echo "")
+FORMATTED_PROVIDERS=""
+if [[ "$ONNX_PROVIDERS" == *","* ]]; then
+    IFS=',' read -ra PROVIDERS_ARRAY <<< "$ONNX_PROVIDERS"
+    for provider in "${PROVIDERS_ARRAY[@]}"; do
+        FORMATTED_PROVIDERS="${FORMATTED_PROVIDERS}${provider}, "
+    done
+    FORMATTED_PROVIDERS=${FORMATTED_PROVIDERS%, }
+else
+    FORMATTED_PROVIDERS=$ONNX_PROVIDERS
+fi
+print_table_row "ONNX Runtime Version" "$ONNX_VERSION"
+print_table_row "Available Providers" "$FORMATTED_PROVIDERS"
+print_table_footer
+
 print_header "DIAGNOSTICS SUMMARY"
 print_table_header "HARDWARE ACCELERATION STATUS"
 
