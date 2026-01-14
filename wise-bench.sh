@@ -514,7 +514,6 @@ else
 fi
 
 PYTORCH_CUDA=$(python3 -c "
-if pip list | grep -E "^torch " &>/dev/null; then
 import sys
 try:
     import torch
@@ -526,19 +525,13 @@ except Exception:
 " 2>/dev/null || echo "False")
 if [[ "$PYTORCH_CUDA" == "True" ]]; then
     print_table_row "PyTorch GPU" "✓ Accelerated"
-    print_table_row "PyTorch GPU" "✓ Accelerated"
-    PYTORCH_STATUS=1
     PYTORCH_STATUS=1
 else
-else
     print_table_row "PyTorch GPU" "⚠ CPU Only"
-    print_table_row "PyTorch GPU" "⚠ CPU Only"
-    PYTORCH_STATUS=0
     PYTORCH_STATUS=0
 fi
 
 TF_GPU_COUNT=$(python3 -c "
-if pip list | grep -E "^tensorflow " &>/dev/null; then
 import sys
 try:
     import tensorflow as tf
@@ -550,14 +543,9 @@ except Exception:
 " 2>/dev/null || echo "0")
 if [[ "$TF_GPU_COUNT" -gt 0 ]]; then
     print_table_row "TensorFlow GPU" "✓ Accelerated"
-    print_table_row "TensorFlow GPU" "✓ Accelerated"
-    TF_STATUS=1
     TF_STATUS=1
 else
-else
     print_table_row "TensorFlow GPU" "⚠ CPU Only"
-    print_table_row "TensorFlow GPU" "⚠ CPU Only"
-    TF_STATUS=0
     TF_STATUS=0
 fi
 
