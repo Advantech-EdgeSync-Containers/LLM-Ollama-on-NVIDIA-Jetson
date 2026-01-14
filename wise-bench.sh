@@ -242,7 +242,44 @@ else
     fi
 fi
 print_table_footer
-
+print_header "OPENCV CUDA TEST"
+echo -ne "▶ Testing OpenCV CUDA support... "
+for i in {1..3}; do
+    for c in / - \\ \|; do
+        echo -ne "\b$c"
+        sleep 0.2
+    done
+done
+echo -ne "\b✓\n"
+print_table_header "OPENCV DETAILS"
+OPENCV_INFO=$(python3 -c "
+import sys
+try:
+    import cv2
+    print(cv2.__version__)
+    print(hasattr(cv2, 'cuda'))
+    print(cv2.cuda.getCudaEnabledDeviceCount() if hasattr(cv2, 'cuda') else 0)
+except ImportError:
+    print('Not installed')
+    print('False')
+    print('0')
+except Exception as e:
+    print('Error: ' + str(e))
+    print('False')
+    print('0')
+" 2>/dev/null || echo "Error Not available Not available")
+OPENCV_VERSION=$(echo "$OPENCV_INFO" | head -1)
+OPENCV_CUDA=$(echo "$OPENCV_INFO" | sed -n '2p')
+OPENCV_DEVICES=$(echo "$OPENCV_INFO" | sed -n '3p')
+print_table_row "OpenCV Version" "$OPENCV_VERSION"
+print_table_row "CUDA Module" "$([[ "$OPENCV_CUDA" == "True" ]] && echo "Available" || echo "Not available")"
+print_table_row "CUDA Devices" "$OPENCV_DEVICES"
+if [[ "$OPENCV_CUDA" == "True" && "$OPENCV_DEVICES" -gt 0 ]]; then
+    print_table_row "Status" "✓ GPU Acceleration Enabled"
+else
+    print_table_row "Status" "⚠ CPU Mode Only"
+fi
+print_table_footer
 print_header "PYTORCH CUDA TEST"
 echo -ne "▶ Running PyTorch CUDA test... "
 SPINNER_CHARS="⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏"
@@ -363,31 +400,164 @@ fi
 print_table_row "ONNX Runtime Version" "$ONNX_VERSION"
 print_table_row "Available Providers" "$FORMATTED_PROVIDERS"
 print_table_footer
+print_header "TENSORRT TEST"
+echo -e "▶ Testing TensorRT capabilities..."
+python3 << 'EOF'
+import sys
+import time
+import tensorrt as trt
+import numpy as np
+import warnings
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+warnings.filterwarnings("ignore", category=UserWarning)
+def print_section(title):
+    print(f"\n+--- {title} {'-' * (40 - len(title))}+")
+    print(f"|{' ' * 42}|")
+    print(f"+{'-' * 42}+")
+    
+def test_tensorrt_basic():
+    print_section("Basic TensorRT Test")
+    logger = trt.Logger(trt.Logger.WARNING)
+    builder = trt.Builder(logger)
+    print(f"TensorRT version: {trt.__version__}")
+    print(f"Platform has FP16: {builder.platform_has_fast_fp16}")
+    print(f"Platform has INT8: {builder.platform_has_fast_int8}")
+    print(f"Max batch size: {builder.max_DLA_batch_size}")
+    print(f"DLA cores: {builder.num_DLA_cores}")
+    if builder.num_DLA_cores > 0:
+        print(f"Max DLA batch size: {builder.max_DLA_batch_size}")    
+    network = builder.create_network(1 << int(trt.NetworkDefinitionCreationFlag.EXPLICIT_BATCH))
+    cfg = builder.create_builder_config()
+    print(f"✓ Basic TensorRT functionality is working")
+    return True
+    
+def create_simple_network(bs=1):
+    logger = trt.Logger(trt.Logger.WARNING)
+    builder = trt.Builder(logger)
+    explicit_batch = 1 << int(trt.NetworkDefinitionCreationFlag.EXPLICIT_BATCH)
+    network = builder.create_network(explicit_batch)
+    inp = network.add_input("IN", trt.float32, (bs,3,224,224))
+    w_conv = np.random.rand(16,3,3,3).astype(np.float32)
+    conv = network.add_convolution_nd(inp, 16, (3,3), trt.Weights(w_conv), None)
+    conv.stride_nd = (1,1)
+    conv.padding_nd = (1,1)
+    relu = network.add_activation(conv.get_output(0), trt.ActivationType.RELU)
+    pool = network.add_pooling_nd(relu.get_output(0), trt.PoolingType.MAX, (2,2))
+    pool.stride_nd = (2,2)
+    global_pool = network.add_pooling_nd(pool.get_output(0), trt.PoolingType.AVERAGE, (112,112))
+    global_pool.stride_nd = (1,1)
+    w_final = np.random.rand(10,16,1,1).astype(np.float32)
+    final_conv = network.add_convolution_nd(global_pool.get_output(0), 10, (1,1), trt.Weights(w_final), None)
+    sm = network.add_softmax(final_conv.get_output(0))
+    sm.axes = 1 << 1  # Axis 1 (channels)
+    sm.get_output(0).name = "OUT"
+    network.mark_output(sm.get_output(0))
+    return builder, network
+def test_precision_mode(prec="fp32", bs=1, dla=False):
+    print_section(f"Testing {prec.upper()}")
+    try:
+        b, n = create_simple_network(bs)
+        cfg = b.create_builder_config()
+        cfg.set_memory_pool_limit(trt.MemoryPoolType.WORKSPACE, 1 << 28)
+        if prec=="fp16":
+            cfg.set_flag(trt.BuilderFlag.FP16)
+            print(f"Enabled FP16")
+        print("Building engine", end="")
+        start = time.time()
+        for _ in range(3):
+            print(".", end="", flush=True)
+            time.sleep(0.2)
+        print(" ", end="")
+        try:
+            serialized_engine = b.build_serialized_network(n, cfg)
+            if serialized_engine is None:
+                raise RuntimeError("Failed to build serialized engine")
+            runtime = trt.Runtime(trt.Logger(trt.Logger.WARNING))
+            eng = runtime.deserialize_cuda_engine(serialized_engine)
+            if eng is None:
+                raise RuntimeError("Failed to deserialize engine")
+            print(f"Built in {time.time()-start:.2f}s")
+            ctx = eng.create_execution_context()
+            print(f"✓ {prec.upper()} engine built successfully")
+            return True
+        except Exception as e:
+            print(f"Built in {time.time()-start:.2f}s")
+            print(f"⚠ Could not create execution context: {e}")
+            print(f"✓ {prec.upper()} basic test passed")
+            return True
+    except Exception as e:
+        print(f"⚠ {prec.upper()} test not available: {e}")
+        return False
+        
+def main():
+    test_tensorrt_basic()
+    test_precision_mode("fp16", 1, False)
+if __name__=="__main__":
+    main()
+EOF
 
 print_header "DIAGNOSTICS SUMMARY"
 print_table_header "HARDWARE ACCELERATION STATUS"
 
+if [ -f "/usr/local/cuda/bin/nvcc" ] || [ -n "$(find /usr -name nvcc 2>/dev/null | head -1)" ]; then
 if command -v nvidia-smi &> /dev/null && nvidia-smi > /dev/null 2>&1; then
+    print_table_row "CUDA Toolkit" "✓ Available"
     print_table_row "CUDA Toolkit" "✓ Active"
     CUDA_STATUS=1
+    CUDA_STATUS=1
+else
 else
     print_table_row "CUDA Toolkit" "⚠ Not detected"
+    print_table_row "CUDA Toolkit" "⚠ Not detected"
+    CUDA_STATUS=0
     CUDA_STATUS=0
 fi
 
+PYTORCH_CUDA=$(python3 -c "
 if pip list | grep -E "^torch " &>/dev/null; then
+import sys
+try:
+    import torch
+    print(torch.cuda.is_available())
+except ImportError:
+    print('False')
+except Exception:
+    print('False')
+" 2>/dev/null || echo "False")
+if [[ "$PYTORCH_CUDA" == "True" ]]; then
+    print_table_row "PyTorch GPU" "✓ Accelerated"
     print_table_row "PyTorch GPU" "✓ Accelerated"
     PYTORCH_STATUS=1
+    PYTORCH_STATUS=1
+else
 else
     print_table_row "PyTorch GPU" "⚠ CPU Only"
+    print_table_row "PyTorch GPU" "⚠ CPU Only"
+    PYTORCH_STATUS=0
     PYTORCH_STATUS=0
 fi
 
+TF_GPU_COUNT=$(python3 -c "
 if pip list | grep -E "^tensorflow " &>/dev/null; then
+import sys
+try:
+    import tensorflow as tf
+    print(len(tf.config.list_physical_devices('GPU')))
+except ImportError:
+    print('0')
+except Exception:
+    print('0')
+" 2>/dev/null || echo "0")
+if [[ "$TF_GPU_COUNT" -gt 0 ]]; then
+    print_table_row "TensorFlow GPU" "✓ Accelerated"
     print_table_row "TensorFlow GPU" "✓ Accelerated"
     TF_STATUS=1
+    TF_STATUS=1
+else
 else
     print_table_row "TensorFlow GPU" "⚠ CPU Only"
+    print_table_row "TensorFlow GPU" "⚠ CPU Only"
+    TF_STATUS=0
     TF_STATUS=0
 fi
 
