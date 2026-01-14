@@ -500,16 +500,11 @@ print_header "DIAGNOSTICS SUMMARY"
 print_table_header "HARDWARE ACCELERATION STATUS"
 
 if [ -f "/usr/local/cuda/bin/nvcc" ] || [ -n "$(find /usr -name nvcc 2>/dev/null | head -1)" ]; then
-if command -v nvidia-smi &> /dev/null && nvidia-smi > /dev/null 2>&1; then
     print_table_row "CUDA Toolkit" "✓ Available"
-    print_table_row "CUDA Toolkit" "✓ Active"
-    CUDA_STATUS=1
     CUDA_STATUS=1
 else
 else
     print_table_row "CUDA Toolkit" "⚠ Not detected"
-    print_table_row "CUDA Toolkit" "⚠ Not detected"
-    CUDA_STATUS=0
     CUDA_STATUS=0
 fi
 
