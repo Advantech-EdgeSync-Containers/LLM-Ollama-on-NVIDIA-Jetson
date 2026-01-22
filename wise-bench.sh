@@ -540,7 +540,7 @@ if [[ "$TF_GPU_COUNT" -gt 0 ]]; then
     TF_STATUS=1
 else
     print_table_row "TensorFlow GPU" "⚠ CPU Only"
-    TF_STATUS=0
+    TF_STATUS=1
 fi
 
 if [ -e "/dev/v4l2-nvenc" ]; then
@@ -583,35 +583,59 @@ INFERENCE_STATUS=0
 EXEC_MODE_STATUS=0
 
 # ---- Check if Ollama is running ----
-if curl --silent --fail "$OPENAI_API_OLLAMA_BASE/api/tags" > /dev/null; then
+if curl --silent --fail "$OLLAMA_API_BASE/api/tags" > /dev/null; then
     print_table_row "Ollama Server Status" "✓ Running"
     OLLAMA_STATUS=1
     MAX=$((MAX + 2))
-    RESPONSE=$(curl -s -X POST "$OPENAI_API_OLLAMA_BASE/api/generate" \
+
+    # Run basic inference
+    RESPONSE=$(curl -s -X POST "$OLLAMA_API_BASE/api/generate" \
     -H "Content-Type: application/json" \
     -d "{
           \"model\": \"$MODEL_NAME\",
           \"prompt\": \"Hi! How are you?\",
           \"stream\": false
         }")
+
     MESSAGE=$(echo "$RESPONSE" | grep -oP '"response"\s*:\s*"\K[^"]+')
     if [ -n "$MESSAGE" ]; then
-        INFERENCE_STATUS=1
-        print_table_row "Ollama Test Inference (Hi, How are you?)" "✓ $MESSAGE"
+      INFERENCE_STATUS=1
+      print_table_row "Ollama Test Inference (Hi, How are you?)" "✓ $MESSAGE"
     else
-        print_table_row "Ollama Test Inference (Hi, How are you?)" "⚠ No valid response"
+
+      print_table_row "Ollama Test Inference (Hi, How are you?)" "⚠ No valid response"
     fi
-    LOG_PATH="/workspace/ollama.log"
-    LAST_OFFLOAD=$(grep -E "offloading .* to GPU" "$LOG_PATH" | tail -n 1)
-    EXEC_MODE_STATUS=1
-    if echo "$LAST_OFFLOAD" | grep -q "offloading .* to GPU"; then
-        EXEC_MODE="GPU"
+
+    # ---- Check Ollama Execution Mode ----
+    MODEL_INFO=$(curl -s http://localhost:11434/api/ps)
+    MODEL_COUNT=$(echo "$MODEL_INFO" | grep -o '"name"' | wc -l)
+
+    if [ "$MODEL_COUNT" -gt 0 ]; then
+        # Extract values using grep and tr to ensure only digits are captured
+        TOTAL_SIZE=$(echo "$MODEL_INFO" | grep -o '"size":[0-9]*' | head -n 1 | cut -d: -f2 | tr -d '"')
+        VRAM_SIZE=$(echo "$MODEL_INFO" | grep -o '"size_vram":[0-9]*' | head -n 1 | cut -d: -f2 | tr -d '"')
+
+        # Fallback to 0 if variables are empty to prevent "integer expression" error
+        : "${TOTAL_SIZE:=0}"
+        : "${VRAM_SIZE:=0}"
+        EXEC_MODE_STATUS=1
+
+        if [ "$TOTAL_SIZE" -gt 0 ] && [ "$VRAM_SIZE" -eq "$TOTAL_SIZE" ]; then
+            EXEC_MODE="GPU (Full)"
+        elif [ "$VRAM_SIZE" -gt 0 ]; then
+            EXEC_MODE="GPU (Full)"
+        else
+            EXEC_MODE="CPU"
+        fi
     else
-        EXEC_MODE="CPU"
+        EXEC_MODE="IDLE (No Model)"
     fi
+
     print_table_row "Ollama Execution Mode" "$EXEC_MODE"
+
 else
-    print_table_row "Ollama Server Status" "⚠ Not Running"
+
+  print_table_row "Ollama Server Status" "⚠ Not Running"
 fi
 
 TOTAL=$((OLLAMA_STATUS + INFERENCE_STATUS + EXEC_MODE_STATUS))
