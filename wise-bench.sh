@@ -583,13 +583,13 @@ INFERENCE_STATUS=0
 EXEC_MODE_STATUS=0
 
 # ---- Check if Ollama is running ----
-if curl --silent --fail "$OLLAMA_API_BASE/api/tags" > /dev/null; then
+if curl --silent --fail "$OPENAI_API_OLLAMA_BASE/api/tags" > /dev/null; then
     print_table_row "Ollama Server Status" "✓ Running"
     OLLAMA_STATUS=1
     MAX=$((MAX + 2))
 
     # Run basic inference (forces the model to load into memory/VRAM)
-    RESPONSE=$(curl -s -X POST "$OLLAMA_API_BASE/api/generate" \
+    RESPONSE=$(curl -s -X POST "$OPENAI_API_OLLAMA_BASE/api/generate" \
     -H "Content-Type: application/json" \
     -d "{
           \"model\": \"$MODEL_NAME\",
@@ -613,7 +613,7 @@ if curl --silent --fail "$OLLAMA_API_BASE/api/tags" > /dev/null; then
     fi
 
     # ---- Live Check Ollama Execution Mode (Script 1 Logic -> Script 2 Output) ----
-    MODEL_INFO=$(curl -s "$OLLAMA_API_BASE/api/ps")
+    MODEL_INFO=$(curl -s "$OPENAI_API_OLLAMA_BASE/api/ps")
     MODEL_COUNT=$(echo "$MODEL_INFO" | grep -o '"name"' | wc -l)
     
     if [ "$MODEL_COUNT" -gt 0 ]; then
